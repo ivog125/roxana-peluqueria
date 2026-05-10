@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar Productos — Roxana</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #fdf6fa; padding: 40px 20px; }
+  .container { max-width: 700px; margin: 0 auto; }
+  h1 { font-size: 28px; color: #e91e8c; margin-bottom: 8px; }
+  p { color: #6b5c63; margin-bottom: 28px; }
+  .card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 4px 24px rgba(233,30,140,0.1); margin-bottom: 20px; }
+  .btn {
+    background: #e91e8c; color: white; border: none; border-radius: 10px;
+    padding: 13px 28px; font-family: 'DM Sans', sans-serif; font-size: 15px;
+    font-weight: 500; cursor: pointer; transition: background 0.2s;
+  }
+  .btn:hover { background: #c4177a; }
+  .btn:disabled { background: #f0c8e0; cursor: not-allowed; }
+  .log { margin-top: 20px; background: #1a0a12; border-radius: 10px; padding: 16px; font-family: monospace; font-size: 13px; color: #ff9ed6; max-height: 400px; overflow-y: auto; line-height: 1.8; }
+  .log .ok { color: #86efac; }
+  .log .err { color: #fca5a5; }
+  .log .info { color: #93c5fd; }
+  .warning { background: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; color: #92400e; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>✂ Importar Productos</h1>
+  <p>Carga inicial del catálogo de Peluquería Roxana en Firestore</p>
+
+  <div class="warning">
+    ⚠️ <strong>Usá este archivo solo una vez.</strong> Si lo ejecutás de nuevo, duplicará los productos.
+  </div>
+
+  <div class="card">
+    <p style="margin-bottom:16px; color:#1a0a12; font-weight:500;">Se van a importar <strong id="count">0</strong> productos a Firestore.</p>
+    <button class="btn" id="import-btn">🚀 Importar productos</button>
+    <div class="log" id="log" style="display:none;"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArto8ddzZRitp7HSu_duT7_7VU4MSby20",
+  authDomain: "roxana-peluqueria.firebaseapp.com",
+  projectId: "roxana-peluqueria",
+  storageBucket: "roxana-peluqueria.firebasestorage.app",
+  messagingSenderId: "639300743681",
+  appId: "1:639300743681:web:a847df9c0419af168c4600"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const productos = [
+
+  // ── NOVALOOK · Shampoos ──────────────────────────────────────
+  {
+    nombre: "Shampoo Intensificador Cobre (Intense Copper)",
+    marca: "Novalook", categoria: "Shampoos",
+    descripcion: "Realza tonos cobrizos. pH Ácido. 375ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Shampoo Platinium Blonde Matizador Violet",
+    marca: "Novalook", categoria: "Shampoos",
+    descripcion: "Neutraliza reflejos amarillentos. pH Ácido. 375ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Shampoo Intensificador Rojo (Intense Red)",
+    marca: "Novalook", categoria: "Shampoos",
+    descripcion: "Realza tonos rojos. pH Ácido. 375ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Shampoo Intensificador Chocolate (Intense Brown)",
+    marca: "Novalook", categoria: "Shampoos",
+    descripcion: "Realza tonos chocolate. pH Ácido. 375ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── NOVALOOK · Cremas de Peinar ──────────────────────────────
+  {
+    nombre: "Crema de Peinar Stop Frizz - Cuidado Intenso",
+    marca: "Novalook", categoria: "Cremas de Peinar",
+    descripcion: "Para cabellos castigados. Filtro UV, sin enjuague. 160ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Crema de Peinar Nature Amazing Curl",
+    marca: "Novalook", categoria: "Cremas de Peinar",
+    descripcion: "Para rulos increíbles, con Macadamia. Sin enjuague. 160ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Crema de Peinar Keratina Vegetal & Bamboo",
+    marca: "Novalook", categoria: "Cremas de Peinar",
+    descripcion: "Para cabellos dañados. Nutre y repara. Filtro UV, sin enjuague. 160ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Crema de Peinar Argán & Palta - Hidratación Profunda",
+    marca: "Novalook", categoria: "Cremas de Peinar",
+    descripcion: "Para cabellos secos. Filtro UV, sin enjuague. 160ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── OSSONO ───────────────────────────────────────────────────
+  {
+    nombre: "Styling Cream 10 en 1 - All in One",
+    marca: "Ossono", categoria: "Cremas de Peinar",
+    descripcion: "Crema de peinado leave-in. 10 beneficios en 1. 180ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Daily Dual Cream (DDC) Argán Oil",
+    marca: "Ossono", categoria: "Cremas de Peinar",
+    descripcion: "Styling & Hydrating. Leave in texturizador con aceite de argán. 180ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── AFTER PARTY ──────────────────────────────────────────────
+  {
+    nombre: "After Party - Protector Térmico Nutritivo",
+    marca: "After Party", categoria: "Tratamientos",
+    descripcion: "Con Aceite de Argán y Ácido Hialurónico. Protege y rejuvenece la fibra capilar. Filtro UV. Uso diario.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── ORO LÍQUIDO ──────────────────────────────────────────────
+  {
+    nombre: "Oro Líquido - Brillo Extremo",
+    marca: "Oro Líquido", categoria: "Tratamientos",
+    descripcion: "Sin formol. Desenredante, protector térmico, filtro UV. Aplicar con pelo húmedo.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── FRILAYP · BTX Extreme ────────────────────────────────────
+  {
+    nombre: "BTX Extreme Shampoo",
+    marca: "Frilayp", categoria: "Shampoos",
+    descripcion: "Da brillo y suavidad. Nutre y repara. Anti frizz. 370ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "BTX Extreme Tratamiento Capilar",
+    marca: "Frilayp", categoria: "Tratamientos",
+    descripcion: "Da brillo y suavidad. Nutre y repara. Anti frizz. 150g.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "BTX 10 Extreme - Tratamiento sin enjuague",
+    marca: "Frilayp", categoria: "Tratamientos",
+    descripcion: "Protección UV, sellado de cutícula, resistencia, hidratación y lacio natural. 200g.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── AZAHAR · Línea PLEX ──────────────────────────────────────
+  {
+    nombre: "Shampoo con Complejo PLEX Reconstructor",
+    marca: "Azahar", categoria: "Shampoos",
+    descripcion: "Para cabellos dañados, teñidos o con tratamientos químicos. Repara y fortalece. 500ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Acondicionador con Complejo PLEX Reconstructor",
+    marca: "Azahar", categoria: "Acondicionadores",
+    descripcion: "Cabello más fuerte y resistente. Para cabellos dañados, teñidos o con tratamientos químicos. 500ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Máscara PLEX Brillo & Reconstrucción",
+    marca: "Azahar", categoria: "Máscaras",
+    descripcion: "Hasta 90% recuperación cabello dañado. Restructurante. 100% mejor brillo. 250g.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── AZAHAR · Otros ───────────────────────────────────────────
+  {
+    nombre: "Emulsión Hidratante Elasticidad & Sedosidad",
+    marca: "Azahar", categoria: "Tratamientos",
+    descripcion: "Con Ácido Hialurónico, Vitamina B5 y Aloe Vera. Textura ligera, sin residuos. Brillo saludable inmediato.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Espuma Rulos - Fijación & Volumen",
+    marca: "Azahar", categoria: "Styling",
+    descripcion: "Con Ác. Hialurónico, Colágeno e Hidratante. Fijación duradera, textura aireada y no pegajosa.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Activador de Rulos con Amino Color Protect",
+    marca: "Azahar", categoria: "Styling",
+    descripcion: "Protección del color, humectación y brillo. Línea Bio-Tecno. 150g.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── DEL 3 ────────────────────────────────────────────────────
+  {
+    nombre: "Complejo Intensivo Capilar Multi-Acción",
+    marca: "Del 3", categoria: "Tratamientos",
+    descripcion: "Con Provitamina B5. Humecta, restaura, protege y revitaliza. Da brillo y salud al cabello. 100g.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── LIBRA · Corporal ─────────────────────────────────────────
+  {
+    nombre: "Crema Anticelulítica para Masajes",
+    marca: "Libra", categoria: "Corporal",
+    descripcion: "Extracto de Centella Asiática. Ayuda a mejorar la piel con celulitis y piel de naranja. Uso profesional. 250g.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Crema Modeladora para Masajes",
+    marca: "Libra", categoria: "Corporal",
+    descripcion: "Fosfatidilcolina, Centella Asiática y Ginkgo Biloba. Ayuda a disminuir adiposidades localizadas. Uso profesional. 250g.",
+    precio: 0, activo: true, imagen: ""
+  },
+  {
+    nombre: "Loción Hidratante",
+    marca: "Libra", categoria: "Corporal",
+    descripcion: "Hidrata, refresca y humecta la piel. Con Hialuronato de Sodio, Pantenol, Colágeno y Urea. 250ml.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── RODEN FILLER ─────────────────────────────────────────────
+  {
+    nombre: "Emulsión FPS Protector Solar",
+    marca: "Roden Filler", categoria: "Cuidado Facial",
+    descripcion: "Efecto blanqueador. Extracto de Berro y Genisteína. Empareja el tono de piel. Previene envejecimiento digital. 30g.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+  // ── ICONO ────────────────────────────────────────────────────
+  {
+    nombre: "Leche de Limpieza con Siliconas y Caléndula",
+    marca: "Icono", categoria: "Cuidado Facial",
+    descripcion: "Limpieza suave con siliconas y extracto de Caléndula. 196g.",
+    precio: 0, activo: true, imagen: ""
+  },
+
+];
+
+document.getElementById('count').textContent = productos.length;
+
+const logEl = document.getElementById('log');
+function log(msg, type = '') {
+  logEl.style.display = 'block';
+  logEl.innerHTML += `<div class="${type}">${msg}</div>`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+document.getElementById('import-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('import-btn');
+  btn.disabled = true;
+  btn.textContent = 'Importando...';
+  log('<span class="info">Iniciando importación...</span>');
+
+  let ok = 0, errors = 0;
+  for (const prod of productos) {
+    try {
+      await addDoc(collection(db, 'productos'), { ...prod, createdAt: new Date().toISOString() });
+      log(`<span class="ok">✓</span> ${prod.nombre}`);
+      ok++;
+    } catch(e) {
+      log(`<span class="err">✗ Error en "${prod.nombre}": ${e.message}</span>`);
+      errors++;
+    }
+  }
+  log(`<br><span class="info">═══ Resultado: ${ok} importados, ${errors} errores ═══</span>`);
+  btn.textContent = `✅ Listo (${ok}/${productos.length})`;
+});
+</script>
+</body>
+</html>

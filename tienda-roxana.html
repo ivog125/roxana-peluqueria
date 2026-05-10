@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peluquería Roxana — Tienda</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #e91e8c;
+    --pink-light: #ff6bb5;
+    --pink-pale: #fff0f7;
+    --dark: #1a0a12;
+    --gray: #6b5c63;
+    --white: #ffffff;
+    --card-shadow: 0 4px 24px rgba(233,30,140,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #fdf6fa; color: var(--dark); min-height: 100vh; }
+
+  /* BANNER */
+  #banner-strip {
+    background: linear-gradient(90deg, var(--pink), var(--pink-light));
+    color: white;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    display: none;
+  }
+
+  /* HEADER */
+  header {
+    background: white;
+    border-bottom: 1px solid #f0dcea;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(233,30,140,0.07);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--pink); }
+  .logo-text { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--pink); line-height: 1.1; }
+  .logo-sub { font-size: 11px; color: var(--gray); letter-spacing: 1.5px; text-transform: uppercase; }
+
+  .search-bar {
+    flex: 1; max-width: 380px;
+    display: flex; align-items: center;
+    background: #fdf0f7; border: 1.5px solid #f0c8e0;
+    border-radius: 24px; padding: 8px 16px; gap: 8px;
+  }
+  .search-bar input {
+    border: none; background: transparent; outline: none;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; width: 100%; color: var(--dark);
+  }
+  .search-bar svg { color: var(--pink); flex-shrink: 0; }
+
+  .cart-btn {
+    background: var(--pink); color: white; border: none; cursor: pointer;
+    border-radius: 24px; padding: 10px 20px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s; position: relative; white-space: nowrap;
+  }
+  .cart-btn:hover { background: #c4177a; }
+  .cart-count {
+    background: white; color: var(--pink); border-radius: 50%;
+    width: 20px; height: 20px; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #fff0f7 0%, #fde8f4 50%, #fff0f7 100%);
+    padding: 48px 20px 40px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '✂'; position: absolute; font-size: 180px; opacity: 0.04;
+    top: -20px; right: -20px; transform: rotate(20deg);
+  }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 5vw, 48px); color: var(--dark); margin-bottom: 10px; }
+  .hero h1 span { color: var(--pink); font-style: italic; }
+  .hero p { color: var(--gray); font-size: 16px; max-width: 480px; margin: 0 auto; }
+
+  /* FILTROS */
+  .filters {
+    max-width: 1200px; margin: 28px auto 0; padding: 0 20px;
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: white; border: 1.5px solid #f0c8e0; color: var(--gray);
+    border-radius: 20px; padding: 7px 16px; font-size: 13px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--pink); border-color: var(--pink); color: white;
+  }
+
+  /* GRID */
+  .products-section { max-width: 1200px; margin: 24px auto; padding: 0 20px 60px; }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  /* CARD */
+  .product-card {
+    background: white; border-radius: 16px; overflow: hidden;
+    box-shadow: var(--card-shadow); transition: transform 0.2s, box-shadow 0.2s;
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(233,30,140,0.15); }
+  .card-img-wrap {
+    position: relative; height: 200px; background: var(--pink-pale);
+    overflow: hidden;
+  }
+  .card-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .product-card:hover .card-img-wrap img { transform: scale(1.05); }
+  .card-category {
+    position: absolute; top: 10px; left: 10px;
+    background: var(--pink); color: white; font-size: 10px;
+    padding: 3px 9px; border-radius: 12px; font-weight: 500; letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .card-body { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .card-brand { font-size: 11px; color: var(--pink); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
+  .card-name { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--dark); line-height: 1.3; }
+  .card-desc { font-size: 12px; color: var(--gray); line-height: 1.4; flex: 1; }
+  .card-price { font-size: 20px; font-weight: 700; color: var(--pink); margin-top: 4px; }
+  .add-btn {
+    width: 100%; background: var(--pink); color: white; border: none;
+    border-radius: 10px; padding: 10px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .add-btn:hover { background: #c4177a; }
+
+  /* CARRITO DRAWER */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(26,10,18,0.5);
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .overlay.open { opacity: 1; pointer-events: all; }
+  .cart-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 100vw);
+    background: white; z-index: 201; transform: translateX(100%);
+    transition: transform 0.3s; display: flex; flex-direction: column;
+    box-shadow: -4px 0 32px rgba(233,30,140,0.12);
+  }
+  .cart-drawer.open { transform: translateX(0); }
+  .drawer-header {
+    padding: 20px; border-bottom: 1px solid #f0dcea;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .drawer-header h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--dark); }
+  .close-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--gray); }
+  .cart-items { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .cart-empty { text-align: center; padding: 40px 20px; color: var(--gray); }
+  .cart-empty svg { opacity: 0.3; margin-bottom: 12px; }
+  .cart-item {
+    display: flex; gap: 12px; align-items: center;
+    background: var(--pink-pale); border-radius: 12px; padding: 10px;
+  }
+  .cart-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+  .cart-item-info { flex: 1; min-width: 0; }
+  .cart-item-name { font-size: 13px; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cart-item-price { font-size: 14px; font-weight: 700; color: var(--pink); }
+  .qty-controls { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .qty-btn {
+    width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--pink);
+    background: white; color: var(--pink); font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-weight: 700;
+  }
+  .qty-btn:hover { background: var(--pink); color: white; }
+  .qty-num { font-size: 14px; font-weight: 600; min-width: 16px; text-align: center; }
+  .remove-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 4px; }
+  .remove-btn:hover { color: var(--pink); }
+  .drawer-footer { padding: 16px 20px; border-top: 1px solid #f0dcea; }
+  .total-row { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+  .total-row span:last-child { color: var(--pink); }
+  .whatsapp-btn {
+    width: 100%; background: #25D366; color: white; border: none;
+    border-radius: 12px; padding: 14px; font-family: 'DM Sans', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 10px; transition: background 0.2s;
+  }
+  .whatsapp-btn:hover { background: #1da851; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--dark); color: white; padding: 12px 24px; border-radius: 24px;
+    font-size: 14px; z-index: 300; transition: transform 0.3s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* SIN RESULTADOS */
+  .no-results { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--gray); }
+  .no-results svg { opacity: 0.3; margin-bottom: 12px; }
+
+  @media (max-width: 600px) {
+    .header-inner { flex-wrap: wrap; }
+    .search-bar { max-width: 100%; order: 3; flex-basis: 100%; }
+    .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    .card-img-wrap { height: 160px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="banner-strip"></div>
+
+<header>
+  <div class="header-inner">
+    <a class="logo-area" href="#">
+      <div class="logo-img" id="logo-display" style="background: linear-gradient(135deg,#e91e8c,#ff6bb5); display:flex; align-items:center; justify-content:center; color:white; font-family:'Playfair Display',serif; font-size:18px; font-weight:700;">R</div>
+      <div>
+        <div class="logo-text">Roxana</div>
+        <div class="logo-sub">Peluquería</div>
+      </div>
+    </a>
+    <div class="search-bar">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search-input" placeholder="Buscar productos...">
+    </div>
+    <button class="cart-btn" id="cart-toggle-btn">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Carrito
+      <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>Tu belleza, <span>nuestra pasión</span></h1>
+  <p>Productos profesionales para el cuidado y estilismo de tu cabello</p>
+</div>
+
+<div class="filters" id="filters-container">
+  <button class="filter-btn active" data-cat="todos">Todos</button>
+</div>
+
+<section class="products-section">
+  <div class="products-grid" id="products-grid">
+    <div style="grid-column:1/-1; text-align:center; padding:60px; color:#c084a8;">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="opacity:.4; margin-bottom:12px; display:block; margin-left:auto; margin-right:auto;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Cargando productos...
+    </div>
+  </div>
+</section>
+
+<!-- Overlay + Drawer -->
+<div class="overlay" id="overlay"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div class="drawer-header">
+    <h2>Tu carrito</h2>
+    <button class="close-btn" id="close-cart">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items-list"></div>
+  <div class="drawer-footer">
+    <div class="total-row">
+      <span>Total</span>
+      <span id="cart-total">$0</span>
+    </div>
+    <button class="whatsapp-btn" id="whatsapp-btn">
+      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+      Pedir por WhatsApp
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">Producto agregado</span>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArto8ddzZRitp7HSu_duT7_7VU4MSby20",
+  authDomain: "roxana-peluqueria.firebaseapp.com",
+  projectId: "roxana-peluqueria",
+  storageBucket: "roxana-peluqueria.firebasestorage.app",
+  messagingSenderId: "639300743681",
+  appId: "1:639300743681:web:a847df9c0419af168c4600"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const WHATSAPP = "5491141715854";
+
+// ─── STATE ───
+let allProducts = [];
+let cart = JSON.parse(localStorage.getItem('roxana-cart') || '[]');
+let activeFilter = 'todos';
+let searchQuery = '';
+
+// ─── BANNER ───
+async function loadBanner() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'banner'));
+    if (snap.exists() && snap.data().activo) {
+      const strip = document.getElementById('banner-strip');
+      strip.textContent = snap.data().texto;
+      strip.style.display = 'block';
+    }
+  } catch(e) {}
+}
+
+// ─── LOGO ───
+async function loadLogo() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'tienda'));
+    if (snap.exists() && snap.data().logoUrl) {
+      const el = document.getElementById('logo-display');
+      el.innerHTML = `<img src="${snap.data().logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    }
+  } catch(e) {}
+}
+
+// ─── PRODUCTOS ───
+async function loadProducts() {
+  const snap = await getDocs(collection(db, 'productos'));
+  allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  buildFilters();
+  renderProducts();
+}
+
+function buildFilters() {
+  const cats = ['todos', ...new Set(allProducts.map(p => p.categoria).filter(Boolean))];
+  const container = document.getElementById('filters-container');
+  container.innerHTML = cats.map(c =>
+    `<button class="filter-btn ${c === 'todos' ? 'active' : ''}" data-cat="${c}">${c.charAt(0).toUpperCase() + c.slice(1)}</button>`
+  ).join('');
+  container.querySelectorAll('.filter-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      activeFilter = btn.dataset.cat;
+      container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProducts();
+    })
+  );
+}
+
+function renderProducts() {
+  const q = searchQuery.toLowerCase();
+  const filtered = allProducts.filter(p => {
+    const matchCat = activeFilter === 'todos' || p.categoria === activeFilter;
+    const matchSearch = !q || p.nombre?.toLowerCase().includes(q) || p.marca?.toLowerCase().includes(q) || p.descripcion?.toLowerCase().includes(q);
+    return matchCat && matchSearch && p.activo !== false;
+  });
+
+  const grid = document.getElementById('products-grid');
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="no-results">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>No se encontraron productos</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => `
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="${p.imagen || 'https://via.placeholder.com/300x200/fff0f7/e91e8c?text=Roxana'}" alt="${p.nombre}" loading="lazy">
+        ${p.categoria ? `<span class="card-category">${p.categoria}</span>` : ''}
+      </div>
+      <div class="card-body">
+        ${p.marca ? `<div class="card-brand">${p.marca}</div>` : ''}
+        <div class="card-name">${p.nombre}</div>
+        <div class="card-desc">${p.descripcion || ''}</div>
+        <div class="card-price">${p.precio ? '$' + Number(p.precio).toLocaleString('es-AR') : 'Consultar'}</div>
+        <button class="add-btn" data-id="${p.id}">Agregar al carrito</button>
+      </div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.add-btn').forEach(btn =>
+    btn.addEventListener('click', () => addToCart(btn.dataset.id))
+  );
+}
+
+// ─── CARRITO ───
+function addToCart(id) {
+  const product = allProducts.find(p => p.id === id);
+  if (!product) return;
+  const existing = cart.find(i => i.id === id);
+  if (existing) existing.qty++;
+  else cart.push({ id, nombre: product.nombre, precio: product.precio, imagen: product.imagen, qty: 1 });
+  saveCart();
+  updateCartUI();
+  showToast(`"${product.nombre}" agregado`);
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  saveCart(); updateCartUI(); renderCartDrawer();
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  saveCart(); updateCartUI(); renderCartDrawer();
+}
+
+function saveCart() { localStorage.setItem('roxana-cart', JSON.stringify(cart)); }
+
+function updateCartUI() {
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cart-count').textContent = total;
+}
+
+function renderCartDrawer() {
+  const list = document.getElementById('cart-items-list');
+  if (!cart.length) {
+    list.innerHTML = `<div class="cart-empty">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="display:block;margin:0 auto 12px;"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Tu carrito está vacío
+    </div>`;
+    document.getElementById('cart-total').textContent = '$0';
+    return;
+  }
+  list.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img src="${item.imagen || 'https://via.placeholder.com/60x60/fff0f7/e91e8c?text=R'}" alt="${item.nombre}">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.nombre}</div>
+        <div class="cart-item-price">${item.precio ? '$' + Number(item.precio).toLocaleString('es-AR') : 'Consultar'}</div>
+        <div class="qty-controls">
+          <button class="qty-btn" data-id="${item.id}" data-delta="-1">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" data-id="${item.id}" data-delta="1">+</button>
+        </div>
+      </div>
+      <button class="remove-btn" data-id="${item.id}">✕</button>
+    </div>
+  `).join('');
+
+  const total = cart.reduce((s, i) => s + (i.precio || 0) * i.qty, 0);
+  document.getElementById('cart-total').textContent = '$' + total.toLocaleString('es-AR');
+
+  list.querySelectorAll('.qty-btn').forEach(btn =>
+    btn.addEventListener('click', () => changeQty(btn.dataset.id, parseInt(btn.dataset.delta)))
+  );
+  list.querySelectorAll('.remove-btn').forEach(btn =>
+    btn.addEventListener('click', () => removeFromCart(btn.dataset.id))
+  );
+}
+
+// ─── WHATSAPP ───
+document.getElementById('whatsapp-btn').addEventListener('click', () => {
+  if (!cart.length) { showToast('Tu carrito está vacío'); return; }
+  const lines = cart.map(i => `• ${i.nombre} x${i.qty}${i.precio ? ' — $' + Number(i.precio * i.qty).toLocaleString('es-AR') : ''}`).join('\n');
+  const total = cart.reduce((s, i) => s + (i.precio || 0) * i.qty, 0);
+  const msg = `¡Hola Roxana! 👋 Quisiera hacer el siguiente pedido:\n\n${lines}\n\n*Total: $${total.toLocaleString('es-AR')}*\n\n¿Podés confirmarme disponibilidad y forma de pago? ¡Gracias! 😊`;
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+});
+
+// ─── DRAWER TOGGLE ───
+function openCart() {
+  renderCartDrawer();
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeCart() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+document.getElementById('cart-toggle-btn').addEventListener('click', openCart);
+document.getElementById('close-cart').addEventListener('click', closeCart);
+document.getElementById('overlay').addEventListener('click', closeCart);
+
+// ─── SEARCH ───
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderProducts();
+});
+
+// ─── TOAST ───
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ─── INIT ───
+updateCartUI();
+loadBanner();
+loadLogo();
+loadProducts();
+</script>
+</body>
+</html>
